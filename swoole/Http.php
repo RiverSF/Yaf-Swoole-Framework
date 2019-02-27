@@ -7,8 +7,9 @@
  */
 class Http
 {
-    public static $instance;
     public $http;
+
+    public static $instance;
     public static $get;
     public static $post;
     public static $header;
@@ -17,8 +18,8 @@ class Http
 
     public function __construct()
     {
-        $http = new swoole_http_server("127.0.0.1", 9501);
-        $http->set(
+        $this->http = new swoole_http_server("127.0.0.1", 9501);
+        $this->http->set(
             array(
                 'worker_num' => 16,
                 'daemonize' => true,
@@ -26,8 +27,8 @@ class Http
                 'dispatch_mode' => 1
             )
         );
-        $http->on('WorkerStart' , array( $this , 'onWorkerStart'));
-        $http->on('request', function ($request, $response) {
+        $this->http->on('WorkerStart' , array( $this , 'onWorkerStart'));
+        $this->http->on('request', function ($request, $response) {
             if( isset($request->server) ) {
                 self::$server = $request->server;
             }else{
@@ -51,7 +52,7 @@ class Http
             // TODO handle img
             ob_start();
             try {
-                $yaf_request = new Yaf_Request_Http(HttpServer::$server['request_uri']);
+                $yaf_request = new Yaf_Request_Http(Http::$server['request_uri']);
                 $this->application->getDispatcher()->dispatch($yaf_request);
 
                 // unset(Yaf_Application::app());
@@ -66,7 +67,7 @@ class Http
             // set status
             $response->end($result);
         });
-        $http->start();
+        $this->http->start();
     }
 
     /**
@@ -83,14 +84,13 @@ class Http
 
     /**
      * 启动 Swoole Http 服务
-     * @return HttpServer
      */
     public static function getInstance()
     {
         if (!self::$instance) {
-            self::$instance = new HttpServer;
+            self::$instance = new self();
         }
         return self::$instance;
     }
 }
-HttpServer::getInstance();
+Http::getInstance();

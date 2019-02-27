@@ -7,38 +7,43 @@
  */
 class WebSocket
 {
+    public $ws;
+
     public static $instance;
-    public $http;
-    public static $get;
-    public static $post;
-    public static $header;
-    public static $server;
     private $application;
 
     public function __construct()
     {
-        $ws = new swoole_websocket_server("127.0.0.1", 9502);
-        $ws->set(['worker_num' => 1, 'daemonize' => 0, 'max_request' => 10000, 'dispatch_mode' => 1]);
+        $this->ws = new swoole_websocket_server("127.0.0.1", 9502);
+        $this->ws->set(['worker_num' => 1, 'daemonize' => 0, 'max_request' => 10000, 'dispatch_mode' => 1]);
         //$ws->on('WorkerStart' , array( $this , 'onWorkerStart'));
 
         //监听WebSocket连接打开事件
-        $ws->on('open', function ($ws, $request) {
+        $this->ws->on('open', function ($ws, $request) {
             var_dump($request->fd, $request->get, $request->server);
             $ws->push($request->fd, "hello, welcome\n");
         });
 
         //监听WebSocket消息事件
-        $ws->on('message', function ($ws, $frame) {
+        $this->ws->on('message', function ($ws, $frame) {
             echo "Message: {$frame->data}\n";
             $ws->push($frame->fd, "server: {$frame->data}");
         });
 
         //监听WebSocket连接关闭事件
-        $ws->on('close', function ($ws, $fd) {
+        $this->ws->on('close', function ($ws, $fd) {
             echo "client-{$fd} is closed\n";
         });
 
-        $ws->start();
+        $this->ws->on('request', function ($request, $response) {
+            // 接收http请求从get获取message参数的值，给用户推送
+            // $this->server->connections 遍历所有websocket连接用户的fd，给所有用户推送
+            foreach ($this->ws->connection_list() as $fd) {
+                $this->ws->push($fd, $request->get['message']);
+            }
+        });
+
+        $this->ws->start();
     }
 
     /**
