@@ -1,0 +1,19 @@
+#!/usr/bin/env php
+<?php
+/**
+ * 简单命令，初始化框架流程，运行自定义函数
+ */
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+date_default_timezone_set('Asia/Shanghai');
+
+define("APPLICATION_PATH", dirname(dirname(__FILE__)));
+define("APPLICATION_INDEX", __FILE__);
+
+$app = new Yaf_Application(APPLICATION_PATH . "/conf/cli.ini");
+
+$GLOBALS['argc'] = $argc;
+$GLOBALS['argv'] = $argv;
+
+$app->bootstrap()->run();
