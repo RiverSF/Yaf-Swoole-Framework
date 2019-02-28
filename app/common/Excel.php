@@ -4,6 +4,8 @@
  * Date: 2019/2/26
  * Time: 18:10
  */
+namespace Common;
+
 class Excel
 {
     /**

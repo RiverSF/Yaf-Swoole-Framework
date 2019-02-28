@@ -4,6 +4,8 @@
  * 文件上传类FileUpload
  * 本类的实例对象用于处理上传文件，可以上传一个文件，也可同时处理多个文件上传
  */
+namespace Common;
+
 class FileUpload
 {
     private $path = APPLICATION_PATH . "/storage/uploads";      //上传文件保存的路径

@@ -5,6 +5,7 @@
  * Date: 2019/2/26
  * Time: 18:46
  */
+namespace Common;
 
 class Email
 {

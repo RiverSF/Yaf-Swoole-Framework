@@ -14,7 +14,7 @@ class WebSocket
 
     public function __construct()
     {
-        $this->ws = new swoole_websocket_server("127.0.0.1", 9502);
+        $this->ws = new swoole_websocket_server("0.0.0.0", 9502);
         $this->ws->set(['worker_num' => 1, 'daemonize' => 0, 'max_request' => 10000, 'dispatch_mode' => 1]);
         //$ws->on('WorkerStart' , array( $this , 'onWorkerStart'));
 
@@ -27,7 +27,10 @@ class WebSocket
         //监听WebSocket消息事件
         $this->ws->on('message', function ($ws, $frame) {
             echo "Message: {$frame->data}\n";
-            $ws->push($frame->fd, "server: {$frame->data}");
+            //$ws->push($frame->fd, "server: {$frame->data}");
+            foreach ($this->ws->connection_list() as $fd) {
+                $this->ws->push($fd, "client $frame->fd：{$frame->data}");
+            }
         });
 
         //监听WebSocket连接关闭事件
@@ -39,7 +42,7 @@ class WebSocket
             // 接收http请求从get获取message参数的值，给用户推送
             // $this->server->connections 遍历所有websocket连接用户的fd，给所有用户推送
             foreach ($this->ws->connection_list() as $fd) {
-                $this->ws->push($fd, $request->get['message']);
+                $this->ws->push($fd, json_encode($request->get));
             }
         });
 
