@@ -2,7 +2,8 @@
 自定义 Yaf-Swoole 框架
 
 # 启动 swoole 服务
-> cd server
+> cd swoole
+
 > php http.php
 
 # 客户端访问
